@@ -12,6 +12,7 @@ import { useFirebaseSync } from './hooks/useFirebaseSync';
 
 type AppRoute = 'source' | 'manga-detail' | 'chapter-reader' | 'genres' | 'history';
 type SourceTab = 'recent' | 'trending' | 'new' | 'completed';
+type AppTheme = 'dark' | 'light';
 
 const SOURCE_ROUTE_MAP: Record<SourceTab, string> = {
   recent: '/truyen-moi',
@@ -103,6 +104,10 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
   const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [theme, setTheme] = useState<AppTheme>(() => {
+    const savedTheme = window.localStorage.getItem('app-theme');
+    return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+  });
 
   const initialRoute = getRouteState(window.location.pathname);
 
@@ -127,6 +132,15 @@ export default function App() {
 
   // Hero highlights (picked from trending)
   const [heroComics, setHeroComics] = useState<Comic[]>([]);
+
+  useEffect(() => {
+    window.localStorage.setItem('app-theme', theme);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark');
+  };
 
   // Fetch home / tab comics when homeTab, homePage, or submittedSearchQuery shifts
   useEffect(() => {
@@ -452,7 +466,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans leading-normal selection:bg-rose-600 selection:text-white antialiased">
+    <div data-theme={theme} className="app-shell min-h-screen flex flex-col font-sans leading-normal antialiased">
       
       {/* Dynamic Navigation Header */}
       <Header
@@ -464,6 +478,8 @@ export default function App() {
         user={user}
         onOpenAuth={openAuthModal}
         onSignOut={signOut}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Main Container wrapper */}
@@ -475,7 +491,7 @@ export default function App() {
             
             {/* 1. Hero Highlights Carousel (When not in search mode) */}
             {!submittedSearchQuery && heroComics.length > 0 && homePage === 1 && (
-              <div id="hero-slider" className="relative bg-zinc-900/30 border-b border-zinc-800 py-8 sm:py-12 overflow-hidden">
+              <div id="hero-slider" className="glass-panel relative border-x-0 border-t-0 rounded-none py-8 sm:py-12 overflow-hidden">
                 {/* Background ambient blurring */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-900/10 via-transparent to-transparent pointer-events-none select-none"></div>
                 
@@ -496,7 +512,7 @@ export default function App() {
                           id={`hero-card-${hero.id}`}
                           key={hero.id}
                           onClick={() => handleNavigate('manga-detail', { comicId: hero.id })}
-                          className="group relative flex bg-zinc-950/80 p-4 rounded-xl border border-zinc-800 hover:border-rose-600 cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-0.5"
+                          className="glass-card group relative flex p-4 rounded-xl hover:border-rose-600 cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-0.5"
                         >
                           {/* Image side */}
                           <div className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden shrink-0 bg-zinc-900 border border-zinc-800 group-hover:border-rose-500 transition-colors">
@@ -546,7 +562,7 @@ export default function App() {
                   <button
                     id="btn-clear-search-view"
                     onClick={clearSearch}
-                    className="p-1 px-3 bg-zinc-900 border border-zinc-800 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-[10px] font-black uppercase tracking-widest text-zinc-300 rounded transition-all cursor-pointer flex items-center gap-1"
+                    className="btn-secondary p-1 px-3 text-[10px] font-black uppercase tracking-widest rounded transition-all cursor-pointer flex items-center gap-1"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Xoá tìm kiếm</span>
@@ -554,7 +570,7 @@ export default function App() {
                 </div>
               ) : (
                 /* Tab Switcher on home page */
-                <div id="home-tabs-bar" className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-65">
+                <div id="home-tabs-bar" className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-8">
                   
                   {/* Sorting segments */}
                   <div className="flex flex-wrap gap-2">
@@ -570,8 +586,8 @@ export default function App() {
                         onClick={() => handleTabChange(tab.id as any)}
                         className={`px-4 py-2 font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                           homeTab === tab.id
-                            ? 'bg-rose-600 text-white'
-                            : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                            ? 'btn-primary'
+                            : 'btn-secondary'
                         }`}
                         title={tab.desc}
                       >
@@ -610,7 +626,7 @@ export default function App() {
                       id="home-page-prev"
                       onClick={handlePrevPageHome}
                       disabled={homePage === 1}
-                      className="p-2.5 px-4 rounded font-black bg-zinc-900 hover:bg-zinc-850 disabled:opacity-40 border border-zinc-800 text-xs text-zinc-300 flex items-center gap-1 cursor-pointer transition-colors uppercase tracking-wider"
+                      className="btn-secondary p-2.5 px-4 rounded font-black disabled:opacity-40 text-xs flex items-center gap-1 cursor-pointer transition-all uppercase tracking-wider"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span>TRANG TRƯỚC</span>
@@ -624,7 +640,7 @@ export default function App() {
                       id="home-page-next"
                       onClick={handleNextPageHome}
                       disabled={!hasMoreHome}
-                      className="p-2.5 px-4 rounded font-black bg-zinc-900 hover:bg-zinc-850 disabled:opacity-40 border border-zinc-800 text-xs text-zinc-300 flex items-center gap-1 cursor-pointer transition-colors uppercase tracking-wider"
+                      className="btn-secondary p-2.5 px-4 rounded font-black disabled:opacity-40 text-xs flex items-center gap-1 cursor-pointer transition-all uppercase tracking-wider"
                     >
                       <span>TRANG KẾ</span>
                       <ChevronRight className="w-4 h-4" />
@@ -632,12 +648,12 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-20 bg-zinc-900/10 border border-zinc-800 rounded">
+                <div className="glass-card text-center py-20 rounded">
                   <AlertCircle className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
                   <p className="text-zinc-400 font-bold text-xs uppercase tracking-wider">Không tìm thấy truyện tranh nào phù hợp.</p>
                   <button
                     onClick={clearSearch}
-                    className="mt-5 px-6 py-2 bg-rose-600 hover:bg-rose-500 font-black text-xs uppercase tracking-widest text-white rounded cursor-pointer transition-colors"
+                    className="btn-primary mt-5 px-6 py-2 font-black text-xs uppercase tracking-widest rounded cursor-pointer transition-all"
                   >
                     Xem tất cả truyện
                   </button>
@@ -699,7 +715,7 @@ export default function App() {
 
       {authModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-8 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/40 overflow-hidden">
+          <div className="glass-panel w-full max-w-md rounded-2xl overflow-hidden">
             <div className="p-6 border-b border-zinc-800">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -712,7 +728,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={closeAuthModal}
-                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+                  className="glass-control rounded-full p-2 transition-colors"
                   aria-label="Đóng"
                 >
                   <X className="h-4 w-4" />
@@ -721,12 +737,12 @@ export default function App() {
             </div>
 
             <form onSubmit={submitAuthForm} className="p-6 space-y-4">
-              <div className="flex rounded-full border border-zinc-800 bg-zinc-900 p-1">
+              <div className="glass-control flex rounded-full p-1">
                 <button
                   type="button"
                   onClick={() => setAuthMode('login')}
                   className={`flex-1 rounded-full px-3 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
-                    authMode === 'login' ? 'bg-rose-600 text-white' : 'text-zinc-400 hover:text-white'
+                    authMode === 'login' ? 'btn-primary' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   Đăng nhập
@@ -735,7 +751,7 @@ export default function App() {
                   type="button"
                   onClick={() => setAuthMode('register')}
                   className={`flex-1 rounded-full px-3 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
-                    authMode === 'register' ? 'bg-rose-600 text-white' : 'text-zinc-400 hover:text-white'
+                    authMode === 'register' ? 'btn-primary' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   Tạo tài khoản
@@ -749,7 +765,7 @@ export default function App() {
                   onChange={(e) => setAuthUserId(e.target.value)}
                   placeholder="vd: user123"
                   autoComplete="username"
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-rose-600"
+                  className="glass-control w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-rose-600"
                 />
               </label>
 
@@ -761,7 +777,7 @@ export default function App() {
                   onChange={(e) => setAuthPassword(e.target.value)}
                   placeholder="Nhập mật khẩu"
                   autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-rose-600"
+                  className="glass-control w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-rose-600"
                 />
               </label>
 
@@ -774,7 +790,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={authSubmitting}
-                className="w-full rounded-xl bg-rose-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-primary w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {authSubmitting ? 'Đang xử lý...' : authMode === 'register' ? 'Tạo tài khoản' : 'Đăng nhập'}
               </button>

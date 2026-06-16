@@ -21,11 +21,11 @@ export default function MangaCard({ comic, onSelect, onSelectChapter }: MangaCar
   return (
     <div 
       id={`manga-card-${comic.id}`}
-      className="group bg-zinc-950 flex flex-col h-full cursor-pointer"
+      className="glass-card group flex flex-col h-full cursor-pointer rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1"
       onClick={() => onSelect(comic.id)}
     >
       {/* Thumbnail Aspect Container */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900 border-2 border-zinc-800 group-hover:border-rose-600 transition-all duration-300">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900 border-b border-zinc-800 group-hover:border-rose-600 transition-all duration-300">
         <img
           src={proxiedImage}
           alt={comic.title}
@@ -60,10 +60,10 @@ export default function MangaCard({ comic, onSelect, onSelectChapter }: MangaCar
       </div>
 
       {/* Info Container */}
-      <div className="py-3 flex flex-col flex-1 gap-1">
+      <div className="p-3 flex flex-col flex-1 gap-1">
         <h3 
           id={`manga-card-title-${comic.id}`}
-          className="font-black text-sm uppercase tracking-tight line-clamp-1 text-zinc-100 group-hover:text-rose-500 transition-colors leading-none"
+          className="min-h-[2.6rem] font-black text-sm uppercase tracking-normal line-clamp-2 text-zinc-100 group-hover:text-rose-500 transition-colors leading-snug"
           title={comic.title}
         >
           {comic.title}
@@ -92,7 +92,7 @@ export default function MangaCard({ comic, onSelect, onSelectChapter }: MangaCar
                   onSelect(comic.id);
                 }
               }}
-              className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all text-[10px] font-black text-zinc-300 uppercase tracking-wider cursor-pointer"
+              className="btn-secondary px-2 py-0.5 rounded transition-all text-[10px] font-black uppercase tracking-wider cursor-pointer"
             >
               CH. {lastChapterId.split('-').pop() || lastChapterId}
             </button>

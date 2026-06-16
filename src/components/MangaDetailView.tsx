@@ -65,11 +65,11 @@ export default function MangaDetailView({
   if (error || !comic) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="bg-zinc-900/80 p-8 rounded border border-zinc-800">
+        <div className="glass-card p-8 rounded">
           <p className="text-rose-500 font-bold uppercase tracking-wider mb-4 leading-relaxed">{error || 'Không tìm thấy thông tin truyện tranh.'}</p>
           <button
             onClick={onNavigateBack}
-            className="px-6 py-2.5 bg-rose-600 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-500 transition-all cursor-pointer"
+            className="btn-primary px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer rounded"
           >
             Quay Lại Trang Chủ
           </button>
@@ -110,7 +110,7 @@ export default function MangaDetailView({
         
         {/* Left column: Thumbnail & Bookmark Controls */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="bg-zinc-950 p-4 rounded border border-zinc-800 relative glow-rose">
+          <div className="glass-card p-4 rounded-lg relative glow-ocean">
             <div className="aspect-[3/4] w-full overflow-hidden bg-zinc-900 border border-zinc-800">
               <img
                 src={proxiedImage}
@@ -152,7 +152,7 @@ export default function MangaDetailView({
                   const firstChapter = comic.chapters[comic.chapters.length - 1]; // First chapter is usually at the end of the array
                   onSelectChapter(comic.id, firstChapter.id);
                 }}
-                className="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-widest transition-all cursor-pointer text-xs"
+                className="btn-primary w-full py-3 font-black uppercase tracking-widest transition-all cursor-pointer text-xs rounded-lg"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Đọc Từ Đầu</span>
@@ -164,7 +164,7 @@ export default function MangaDetailView({
               <button
                 id="btn-read-continue"
                 onClick={() => onSelectChapter(comic.id, lastRead.chapterId)}
-                className="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-rose-500 border border-rose-500/25 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer text-xs"
+                className="btn-secondary w-full py-2.5 text-rose-500 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer text-xs rounded-lg"
               >
                 <Clock className="w-4 h-4" />
                 <span>Đọc Tiếp: Ch. {lastRead.chapterName.split(' ').pop()}</span>
@@ -177,8 +177,8 @@ export default function MangaDetailView({
               onClick={() => onToggleBookmark({ id: comic.id, title: comic.title, thumbnail: comic.thumbnail })}
               className={`w-full py-2.5 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 isBookmarked
-                  ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30'
-                  : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800'
+                  ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 rounded-lg'
+                  : 'btn-secondary rounded-lg'
               }`}
             >
               <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
@@ -191,7 +191,7 @@ export default function MangaDetailView({
         {/* Right column: Details, Description, Chapters List */}
         <div className="lg:col-span-3 flex flex-col gap-6">
           {/* Main Title Metadata Card */}
-          <div className="bg-zinc-900/30 p-6 rounded border border-zinc-800 flex flex-col gap-4">
+          <div className="glass-card p-6 rounded-lg flex flex-col gap-4">
             <h1 id="manga-detail-title" className="font-display font-black text-3xl sm:text-4xl text-white tracking-tighter leading-none">
               {comic.title.toUpperCase()}
             </h1>
@@ -216,14 +216,14 @@ export default function MangaDetailView({
                 <List className="w-3.5 h-3.5 text-rose-500" />
                 <span>Nội Dung Giới Thiệu</span>
               </h3>
-              <p id="manga-detail-desc" className="text-zinc-300 text-sm leading-relaxed whitespace-pre-line bg-zinc-950/80 p-4 rounded border border-zinc-800 font-normal">
+              <p id="manga-detail-desc" className="glass-control text-sm leading-relaxed whitespace-pre-line p-4 rounded font-normal">
                 {comic.description || 'Truyện hiện chưa có nội dung tóm tắt chi tiết.'}
               </p>
             </div>
           </div>
 
           {/* Chapters Panel Card */}
-          <div className="bg-zinc-900/30 rounded border border-zinc-800 p-5 flex flex-col gap-4">
+          <div className="glass-card rounded-lg p-5 flex flex-col gap-4">
             
             {/* Header controls inside Chapters bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
@@ -239,7 +239,7 @@ export default function MangaDetailView({
               <button
                 id="btn-toggle-sort"
                 onClick={() => setSortAsc(!sortAsc)}
-                className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-zinc-900 text-zinc-400 hover:text-white rounded border border-zinc-800 flex items-center gap-1.5 transition-colors cursor-pointer self-end sm:self-auto"
+                className="btn-secondary text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer self-end sm:self-auto"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>{sortAsc ? 'Cũ nhất trước' : 'Mới nhất trước'}</span>
@@ -253,7 +253,7 @@ export default function MangaDetailView({
               placeholder="Tìm kiếm chương (ví dụ: 100)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-900 text-zinc-200 placeholder-zinc-500 pl-4 py-1.5 rounded-full border border-zinc-850 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-xs transition-colors"
+              className="glass-control w-full placeholder-zinc-500 pl-4 py-1.5 rounded-full focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-xs transition-colors"
             />
 
             {/* Chapters List */}

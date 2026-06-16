@@ -101,19 +101,19 @@ export default function ChapterReaderView({
   if (error || !data) {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center animate-fade-in">
-        <div className="bg-zinc-900/95 p-8 rounded border border-zinc-800">
+        <div className="glass-card p-8 rounded">
           <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-4" />
           <p className="text-rose-500 font-bold uppercase tracking-wider text-xs mb-5 leading-relaxed">{error || 'Không tìm thấy trang truyện nào.'}</p>
           <div className="flex justify-center gap-3">
             <button
               onClick={onNavigateToDetail}
-              className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-[10px] font-black uppercase tracking-widest text-zinc-350 rounded cursor-pointer transition-colors"
+              className="btn-secondary px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded cursor-pointer transition-all"
             >
               Chi tiết truyện
             </button>
             <button
               onClick={() => onSelectChapter(comicId, chapterId)}
-              className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-[10px] font-black uppercase tracking-widest text-white rounded cursor-pointer transition-all flex items-center gap-1.5"
+              className="btn-primary px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded cursor-pointer transition-all flex items-center gap-1.5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Tải lại
@@ -151,17 +151,17 @@ export default function ChapterReaderView({
     imageWidth === 80 ? 'max-w-4xl' : 'max-w-5xl';
 
   return (
-    <div id={`chapter-reader-${chapterId}`} className="min-h-screen bg-zinc-950 pb-16 animate-fade-in">
+    <div id={`chapter-reader-${chapterId}`} className="min-h-screen pb-16 animate-fade-in">
       
       {/* Top sticky bar */}
-      <div className="sticky top-16 z-40 w-full bg-zinc-900/95 border-b border-zinc-800/80 backdrop-blur-md">
+      <div className="glass-panel sticky top-16 z-40 w-full border-x-0 border-t-0 rounded-none">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
           
           {/* Back & Title */}
           <div className="flex items-center gap-3 shrink-1 min-w-0">
             <button
               onClick={onNavigateToDetail}
-              className="p-1.5 rounded hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+              className="btn-secondary p-1.5 rounded transition-all cursor-pointer"
               title="Quay lại chi tiết"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -184,7 +184,7 @@ export default function ChapterReaderView({
               id="reader-btn-prev"
                 onClick={handleGoToOlderChapter}
                 disabled={!hasOlderChapter}
-              className="p-2 rounded bg-zinc-800 hover:bg-zinc-750 disabled:opacity-30 disabled:hover:bg-zinc-800 text-zinc-300 transition-colors cursor-pointer"
+              className="btn-secondary p-2 rounded disabled:opacity-30 transition-all cursor-pointer"
               title="Chương trước"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -195,7 +195,7 @@ export default function ChapterReaderView({
               id="reader-chapter-dropdown"
               value={chapterId}
               onChange={handleChapterSelect}
-              className="bg-zinc-950 text-zinc-200 text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded border border-zinc-800 focus:outline-none focus:ring-1 focus:ring-rose-500 cursor-pointer max-w-[130px] sm:max-w-[200px]"
+              className="glass-control text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-rose-500 cursor-pointer max-w-[130px] sm:max-w-[200px]"
             >
               {chaptersList.map((ch) => (
                 <option key={ch.id} value={ch.id}>
@@ -209,7 +209,7 @@ export default function ChapterReaderView({
               id="reader-btn-next"
               onClick={handleGoToNewerChapter}
               disabled={!hasNewerChapter}
-              className="p-2 rounded bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-40 disabled:bg-zinc-800 transition-all cursor-pointer"
+              className="btn-primary p-2 rounded disabled:opacity-40 disabled:bg-zinc-800 transition-all cursor-pointer"
               title="Chương kế tiếp"
             >
               <ChevronRight className="w-4 h-4" />
@@ -223,8 +223,8 @@ export default function ChapterReaderView({
               onClick={() => setShowSettings(!showSettings)}
               className={`p-2 rounded transition-all cursor-pointer ${
                 showSettings 
-                  ? 'bg-rose-600/10 text-rose-500' 
-                  : 'text-zinc-500 hover:text-white hover:bg-zinc-800'
+                  ? 'bg-rose-600/10 text-rose-500 border border-rose-500/20' 
+                  : 'btn-secondary'
               }`}
               title="Cấu hình đọc truyện"
             >
@@ -237,19 +237,19 @@ export default function ChapterReaderView({
 
       {/* Settings Panel Drawer */}
       {showSettings && (
-        <div id="reader-settings-drawer" className="w-full bg-zinc-900 border-b border-zinc-800 py-3.5 px-4 shadow-xl">
+        <div id="reader-settings-drawer" className="glass-panel w-full border-x-0 border-t-0 rounded-none py-3.5 px-4 shadow-xl">
           <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px]">
             {/* Width adjust */}
             <div className="flex items-center gap-3">
               <span className="font-black text-zinc-500 uppercase tracking-widest">CHIỀU RỘNG TRANH:</span>
-              <div className="flex rounded bg-zinc-950 p-0.5 border border-zinc-800">
+              <div className="glass-control flex rounded p-0.5">
                 {[60, 80, 100].map((w) => (
                   <button
                     key={w}
                     onClick={() => { setImageWidth(w); setFullWidth(false); }}
                     className={`px-3 py-1 rounded font-black transition-all ${
                       imageWidth === w && !fullWidth
-                        ? 'bg-rose-600 text-white'
+                        ? 'btn-primary'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
@@ -267,7 +267,7 @@ export default function ChapterReaderView({
                 className={`p-1.5 px-3 rounded border flex items-center gap-1.5 transition-all outline-none text-[10px] font-black uppercase tracking-widest cursor-pointer ${
                   fullWidth
                     ? 'bg-rose-600/20 text-rose-500 border-rose-500/30'
-                    : 'bg-zinc-950 text-zinc-500 border-zinc-800 hover:text-zinc-300'
+                    : 'btn-secondary'
                 }`}
               >
                 {fullWidth ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -330,7 +330,7 @@ export default function ChapterReaderView({
             );
           })
         ) : (
-          <div className="bg-zinc-900/60 p-8 rounded border border-zinc-850 w-full text-center text-zinc-400 max-w-lg mt-12">
+          <div className="glass-card p-8 rounded w-full text-center text-zinc-400 max-w-lg mt-12">
             Không nạp được tài nguyên ảnh cho chương này. Hãy thử bấm "Tải lại" trên thanh công cụ.
           </div>
         )}
@@ -341,14 +341,14 @@ export default function ChapterReaderView({
         <button
           onClick={handleGoToOlderChapter}
           disabled={!hasOlderChapter}
-          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-zinc-900 text-center cursor-pointer select-none transition-all text-zinc-300"
+          className="btn-secondary flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded disabled:opacity-30 text-center cursor-pointer select-none transition-all"
         >
           {hasOlderChapter ? 'Chương Trước' : 'Hết Chương'}
         </button>
         <button
           onClick={handleGoToNewerChapter}
           disabled={!hasNewerChapter}
-          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-30 disabled:bg-zinc-800 text-center cursor-pointer select-none transition-all"
+          className="btn-primary flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded disabled:opacity-30 disabled:bg-zinc-800 text-center cursor-pointer select-none transition-all"
         >
           {hasNewerChapter ? 'Chương Kế Tiếp' : 'Hết Truyện'}
         </button>

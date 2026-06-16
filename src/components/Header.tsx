@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, History, Book, Compass, Home, Sparkles, User, LogOut, Menu, X } from 'lucide-react';
+import { Search, History, Compass, Home, User, LogOut, Menu, X, Moon, Sun } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 
 interface HeaderProps {
@@ -11,6 +11,8 @@ interface HeaderProps {
   user: FirebaseUser | null;
   onOpenAuth: () => void;
   onSignOut: () => void;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 export default function Header({
@@ -22,17 +24,19 @@ export default function Header({
   user,
   onOpenAuth,
   onSignOut,
+  theme,
+  onToggleTheme,
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    { view: 'source', label: 'Nguồn Truyện', icon: Home },
+    { view: 'source', label: 'Truyện Mới', icon: Home },
     { view: 'genres', label: 'Thể Loại', icon: Compass },
-    { view: 'history', label: 'Lịch Sử & Theo Dõi', icon: History },
+    { view: 'history', label: 'Lịch Sử', icon: History },
   ];
 
   return (
-    <header id="app-header" className="sticky top-0 z-50 w-full bg-zinc-950 border-b border-zinc-800 backdrop-blur-md">
+    <header id="app-header" className="glass-panel sticky top-0 z-50 w-full border-x-0 border-t-0 rounded-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -60,7 +64,7 @@ export default function Header({
                 placeholder="Tìm truyện tranh..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full bg-zinc-900 text-zinc-100 placeholder-zinc-500 pl-4 pr-10 py-1.5 rounded-full border border-zinc-800 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-500 text-sm transition-all"
+                className="glass-control w-full placeholder-zinc-500 pl-4 pr-10 py-1.5 rounded-full focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-500 text-sm transition-all"
               />
               <button 
                 id="search-submit"
@@ -84,8 +88,8 @@ export default function Header({
                   onClick={() => onNavigate(item.view, item.view === 'source' ? { tab: 'recent' } : undefined)}
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                     isActive 
-                      ? 'bg-zinc-800 text-rose-500' 
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+                      ? 'bg-rose-600/10 text-rose-500 border border-rose-500/20' 
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50 border border-transparent'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -96,9 +100,18 @@ export default function Header({
           </nav>
 
           {/* User Status / Firebase Authentication */}
-          <div id="user-profile-header" className="flex items-center gap-3 shrink-0">
+          <div id="user-profile-header" className="flex items-center gap-2 shrink-0">
+            <button
+              id="theme-toggle-desktop"
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Chuyển sang white mode' : 'Chuyển sang dark mode'}
+              className="glass-control hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-full transition-all hover:text-rose-500 cursor-pointer"
+              aria-label="Đổi giao diện sáng tối"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             {user ? (
-              <div className="flex items-center gap-2 bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800">
+              <div className="glass-control flex items-center gap-2 px-3 py-1.5 rounded-full">
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
@@ -127,10 +140,10 @@ export default function Header({
               <button
                 id="btn-signin-desktop"
                 onClick={onOpenAuth}
-                className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest text-white bg-rose-600 hover:bg-rose-500 transition-all flex items-center gap-1.5 cursor-pointer"
+                className="btn-primary px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <User className="w-3.5 h-3.5" />
-                <span>Đăng nhập / Tạo tài khoản</span>
+                <span>Đăng nhập</span>
               </button>
             )}
           </div>
@@ -139,7 +152,7 @@ export default function Header({
           <button
             id="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="glass-control md:hidden p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -149,7 +162,16 @@ export default function Header({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div id="mobile-drawer" className="md:hidden bg-zinc-950 border-b border-zinc-800 py-3 px-4 flex flex-col gap-1.5">
+        <div id="mobile-drawer" className="glass-panel md:hidden border-x-0 border-t-0 rounded-none py-3 px-4 flex flex-col gap-1.5">
+          <button
+            id="theme-toggle-mobile"
+            onClick={onToggleTheme}
+            className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-zinc-400 hover:text-white hover:bg-zinc-900/50 border border-zinc-800"
+            aria-label="Đổi giao diện sáng tối"
+          >
+            <span>{theme === 'dark' ? 'White mode' : 'Dark mode'}</span>
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.view;
@@ -163,7 +185,7 @@ export default function Header({
                 }}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
                   isActive 
-                    ? 'bg-zinc-900 text-rose-500' 
+                    ? 'bg-rose-600/10 text-rose-500 border border-rose-500/20' 
                     : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
                 }`}
               >
@@ -218,10 +240,10 @@ export default function Header({
                   onOpenAuth();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full py-2.5 bg-rose-600 text-xs font-black uppercase tracking-widest text-white rounded-full hover:bg-rose-500 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="btn-primary w-full py-2.5 text-xs font-black uppercase tracking-widest rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <User className="w-4 h-4" />
-                <span>Đăng nhập / Tạo tài khoản</span>
+                <span>Đăng nhập</span>
               </button>
             )}
           </div>

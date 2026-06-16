@@ -56,7 +56,7 @@ export default function HistoryListView({
         </p>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
+      <div className="glass-card mb-6 rounded-2xl p-4 sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Tài khoản đang đăng nhập</div>
@@ -72,13 +72,13 @@ export default function HistoryListView({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6 border-b border-zinc-800 pb-4">
         
         {/* Toggle tabs buttons */}
-        <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 p-0.5 rounded">
+        <div className="glass-control flex items-center gap-2 p-0.5 rounded">
           <button
             id="tab-btn-bookmarks"
             onClick={() => setActiveTab('bookmarks')}
             className={`px-4 py-1.5 text-[10px] uppercase tracking-widest font-black rounded transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'bookmarks'
-                ? 'bg-rose-600 text-white'
+                ? 'btn-primary'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
@@ -91,7 +91,7 @@ export default function HistoryListView({
             onClick={() => setActiveTab('history')}
             className={`px-4 py-1.5 text-[10px] uppercase tracking-widest font-black rounded transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'history'
-                ? 'bg-rose-600 text-white'
+                ? 'btn-primary'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
@@ -105,7 +105,7 @@ export default function HistoryListView({
           <button
             id="btn-clear-bookmarks"
             onClick={onClearBookmarks}
-            className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-rose-500 flex items-center gap-1.5 transition-colors self-end sm:self-auto px-3.5 py-1.5 bg-zinc-90 w-auto bg-zinc-900 border border-zinc-850 rounded cursor-pointer"
+            className="btn-secondary text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-all self-end sm:self-auto px-3.5 py-1.5 w-auto rounded cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Huỷ mọi theo dõi</span>
@@ -116,7 +116,7 @@ export default function HistoryListView({
           <button
             id="btn-clear-history"
             onClick={onClearHistory}
-            className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-rose-500 flex items-center gap-1.5 transition-colors self-end sm:self-auto px-3.5 py-1.5 bg-zinc-900 border border-zinc-850 rounded cursor-pointer"
+            className="btn-secondary text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-all self-end sm:self-auto px-3.5 py-1.5 rounded cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Xoá toàn bộ lịch sử</span>
@@ -138,7 +138,7 @@ export default function HistoryListView({
                   <div
                     id={`bookmark-card-${bookmark.comicId}`}
                     key={bookmark.comicId}
-                    className="group bg-zinc-900/30 hover:bg-zinc-900/70 border border-zinc-850 hover:border-rose-600/40 rounded overflow-hidden transition-all duration-300 flex flex-col h-full glow-rose cursor-pointer"
+                    className="glass-card group hover:border-rose-600/40 rounded overflow-hidden transition-all duration-300 flex flex-col h-full glow-ocean cursor-pointer hover:-translate-y-1"
                     onClick={() => onSelectComic(bookmark.comicId)}
                   >
                     <div className="aspect-[3/4] relative bg-zinc-950 overflow-hidden border-b border-zinc-850">
@@ -182,7 +182,7 @@ export default function HistoryListView({
               })}
             </div>
           ) : (
-            <div className="bg-zinc-900/10 rounded border border-zinc-800 p-12 text-center max-w-sm mx-auto mt-6">
+            <div className="glass-card rounded p-12 text-center max-w-sm mx-auto mt-6">
               <Heart className="w-10 h-10 text-zinc-750 mx-auto mb-4" />
               <h3 className="font-extrabold text-xs text-zinc-400 uppercase tracking-widest mb-1.5">Chưa theo dõi truyện nào</h3>
               <p className="text-zinc-500 text-[10px] leading-normal uppercase">
@@ -202,7 +202,7 @@ export default function HistoryListView({
                   <div
                     id={`history-item-${item.comicId}-${item.chapterId}`}
                     key={`${item.comicId}-${item.chapterId}`}
-                    className="group bg-zinc-900/30 hover:bg-zinc-900/60 border border-zinc-850 hover:border-rose-500/30 p-3 rounded flex items-center justify-between gap-4 transition-all pr-5 cursor-pointer"
+                    className="glass-card group hover:border-rose-500/30 p-3 rounded flex items-center justify-between gap-4 transition-all pr-5 cursor-pointer"
                     onClick={() => onSelectComic(item.comicId)}
                   >
                     {/* Left: thumb and Title */}
@@ -245,7 +245,7 @@ export default function HistoryListView({
                         e.stopPropagation();
                         onSelectChapter(item.comicId, item.chapterId);
                       }}
-                      className="px-4 py-2 border border-rose-500/25 rounded hover:bg-rose-600 hover:text-white hover:border-transparent text-[10px] font-black uppercase tracking-widest text-rose-500 shrink-0 flex items-center gap-1 cursor-pointer transition-all active:scale-95 select-none"
+                      className="btn-secondary px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest text-rose-500 shrink-0 flex items-center gap-1 cursor-pointer transition-all active:scale-95 select-none"
                     >
                       <span>Đọc tiếp</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -255,7 +255,7 @@ export default function HistoryListView({
               })}
             </div>
           ) : (
-            <div className="bg-zinc-900/10 rounded border border-zinc-800 p-12 text-center max-w-sm mx-auto mt-6">
+            <div className="glass-card rounded p-12 text-center max-w-sm mx-auto mt-6">
               <Clock className="w-10 h-10 text-zinc-750 mx-auto mb-4" />
               <h3 className="font-extrabold text-xs text-zinc-400 uppercase tracking-widest mb-1.5">Chưa đọc chương truyện nào</h3>
               <p className="text-zinc-500 text-[10px] leading-normal uppercase">

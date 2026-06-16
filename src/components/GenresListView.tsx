@@ -117,11 +117,11 @@ export default function GenresListView({ onSelectComic, onSelectChapter }: Genre
   if (error) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center animate-fade-in">
-        <div className="bg-zinc-900/90 p-8 rounded border border-zinc-800">
+        <div className="glass-card p-8 rounded">
           <p className="text-rose-500 font-bold uppercase tracking-wider text-xs mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2.5 bg-rose-600 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-500 transition-all cursor-pointer"
+            className="btn-primary px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer rounded"
           >
             Tải Lại Trang
           </button>
@@ -147,7 +147,7 @@ export default function GenresListView({ onSelectComic, onSelectChapter }: Genre
       </div>
 
       {/* Genres Buttons Container */}
-      <div className="bg-zinc-900/30 border border-zinc-800 p-4 rounded mb-8">
+      <div className="glass-card p-4 rounded-lg mb-8">
         <div id="genres-button-hub" className="flex flex-wrap gap-2 max-h-[148px] overflow-y-auto pr-1">
           {genres.map((genre) => {
             const isSelected = genre.id === selectedGenreId;
@@ -158,8 +158,8 @@ export default function GenresListView({ onSelectComic, onSelectChapter }: Genre
                 onClick={() => handleGenreClick(genre.id)}
                 className={`px-3 py-1.5 rounded text-[10px] uppercase tracking-wider font-extrabold border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-rose-600 text-white border-rose-600'
-                    : 'bg-zinc-950 text-zinc-400 border-zinc-850 hover:text-white hover:bg-zinc-900'
+                    ? 'btn-primary border-rose-600'
+                    : 'btn-secondary'
                 }`}
                 title={genre.description || genre.name}
               >
@@ -200,7 +200,7 @@ export default function GenresListView({ onSelectComic, onSelectChapter }: Genre
                 id="genre-page-prev"
                 onClick={handlePrevPage}
                 disabled={page === 1}
-                className="p-2.5 px-4 rounded font-black bg-zinc-900 hover:bg-zinc-850 disabled:opacity-40 border border-zinc-800 transition-colors text-xs text-zinc-300 flex items-center gap-1 cursor-pointer uppercase tracking-wider"
+                className="btn-secondary p-2.5 px-4 rounded font-black disabled:opacity-40 transition-all text-xs flex items-center gap-1 cursor-pointer uppercase tracking-wider"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>TRANG TRƯỚC</span>
@@ -214,7 +214,7 @@ export default function GenresListView({ onSelectComic, onSelectChapter }: Genre
                 id="genre-page-next"
                 onClick={handleNextPage}
                 disabled={!hasMore}
-                className="p-2.5 px-4 rounded font-black bg-zinc-900 hover:bg-zinc-850 disabled:opacity-40 border border-zinc-800 transition-colors text-xs text-zinc-300 flex items-center gap-1 cursor-pointer uppercase tracking-wider"
+                className="btn-secondary p-2.5 px-4 rounded font-black disabled:opacity-40 transition-all text-xs flex items-center gap-1 cursor-pointer uppercase tracking-wider"
               >
                 <span>TRANG KẾ</span>
                 <ChevronRight className="w-4 h-4" />
