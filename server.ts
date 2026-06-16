@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 
 const app = express();
 app.use(express.json());
@@ -265,10 +264,12 @@ app.get('/api/comics-gateway/*', async (req, res) => {
 });
 
 
-// KHU VỰC KHỞI CHẠY SERVER LOCAL (VERCEL SẼ BỎ QUA PHẦN NÀY)
 if (process.env.NODE_ENV !== "production") {
   async function startLocalServer() {
     const PORT = 3000;
+    // Gọi Vite theo kiểu dynamic import ngay tại đây
+    const { createServer: createViteServer } = await import("vite");
+    
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -281,5 +282,4 @@ if (process.env.NODE_ENV !== "production") {
   startLocalServer();
 }
 
-// EXPORT APP ĐỂ LÀM SERVERLESS FUNCTION TRÊN VERCEL
 export default app;
