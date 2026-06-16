@@ -20,12 +20,87 @@ const isValidId = (id: string) => {
 };
 
 export function useFirebaseSync() {
+  const getInitialLocalData = () => {
+    try {
+      const storedHistory = localStorage.getItem('nettruyen_history_v1');
+      const storedBookmarks = localStorage.getItem('nettruyen_bookmarks_v1');
+
+      return {
+        bookmarks: storedBookmarks ? JSON.parse(storedBookmarks) as Bookmark[] : [] as Bookmark[],
+        history: storedHistory ? JSON.parse(storedHistory) as ReadingHistory[] : [] as ReadingHistory[],
+      };
+    } catch {
+      return { bookmarks: [], history: [] };
+    }
+  };
+
+  const initialLocalData = getInitialLocalData();
+
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   
   // States of synced lists
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [readingHistory, setReadingHistory] = useState<ReadingHistory[]>([]);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialLocalData.bookmarks);
+  const [readingHistory, setReadingHistory] = useState<ReadingHistory[]>(initialLocalData.history);
+
+  const persistLocalData = (nextBookmarks: Bookmark[], nextHistory: ReadingHistory[]) => {
+    localStorage.setItem('nettruyen_bookmarks_v1', JSON.stringify(nextBookmarks));
+    localStorage.setItem('nettruyen_history_v1', JSON.stringify(nextHistory));
+  };
+
+  const mergeBookmarks = (left: Bookmark[], right: Bookmark[]) => {
+    const byId = new Map<string, Bookmark>();
+    [...left, ...right].forEach((item) => {
+      const existing = byId.get(item.comicId);
+      if (!existing) {
+        byId.set(item.comicId, item);
+        return;
+      }
+
+      const existingTime = new Date(existing.bookmarkedAt || 0).getTime();
+      const nextTime = new Date(item.bookmarkedAt || 0).getTime();
+      if (nextTime >= existingTime) {
+        byId.set(item.comicId, item);
+      }
+    });
+
+    return Array.from(byId.values()).sort((a, b) => new Date(b.bookmarkedAt).getTime() - new Date(a.bookmarkedAt).getTime());
+  };
+
+  const mergeHistory = (left: ReadingHistory[], right: ReadingHistory[]) => {
+    const byId = new Map<string, ReadingHistory>();
+    [...left, ...right].forEach((item) => {
+      const existing = byId.get(item.comicId);
+      if (!existing) {
+        byId.set(item.comicId, item);
+        return;
+      }
+
+      const existingTime = new Date(existing.updatedAt || 0).getTime();
+      const nextTime = new Date(item.updatedAt || 0).getTime();
+      if (nextTime >= existingTime) {
+        byId.set(item.comicId, item);
+      }
+    });
+
+    return Array.from(byId.values()).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  };
+
+  const syncMergedCache = (incomingBookmarks: Bookmark[] = [], incomingHistory: ReadingHistory[] = []) => {
+    const local = getInitialLocalData();
+    const nextBookmarks = mergeBookmarks(local.bookmarks, incomingBookmarks);
+    const nextHistory = mergeHistory(local.history, incomingHistory);
+    setBookmarks(nextBookmarks);
+    setReadingHistory(nextHistory);
+    persistLocalData(nextBookmarks, nextHistory);
+    return { nextBookmarks, nextHistory };
+  };
+
+  const overwriteCache = (nextBookmarks: Bookmark[], nextHistory: ReadingHistory[]) => {
+    setBookmarks(nextBookmarks);
+    setReadingHistory(nextHistory);
+    persistLocalData(nextBookmarks, nextHistory);
+  };
 
   // Listen to Auth state
   useEffect(() => {
@@ -42,6 +117,7 @@ export function useFirebaseSync() {
             await setDoc(userRef, {
               uid: currentUser.uid,
               email: currentUser.email || '',
+              loginId: currentUser.displayName || (currentUser.email || '').split('@')[0] || '',
               displayName: currentUser.displayName || 'Bạn đọc',
               createdAt: serverTimestamp()
             });
@@ -90,7 +166,7 @@ export function useFirebaseSync() {
         });
         // Sort descending by bookmarkedAt
         list.sort((a, b) => new Date(b.bookmarkedAt).getTime() - new Date(a.bookmarkedAt).getTime());
-        setBookmarks(list);
+        syncMergedCache(list, []);
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, bookmarksPath);
@@ -121,7 +197,7 @@ export function useFirebaseSync() {
         });
         // Sort descending by updatedAt
         list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-        setReadingHistory(list);
+        syncMergedCache([], list);
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, historyPath);
@@ -158,11 +234,7 @@ export function useFirebaseSync() {
   // Run local migration to Firestore
   const migrateLocalDataToCloud = async (uid: string) => {
     try {
-      const localB = localStorage.getItem('nettruyen_bookmarks_v1');
-      const localH = localStorage.getItem('nettruyen_history_v1');
-      
-      const bookmarksList: Bookmark[] = localB ? JSON.parse(localB) : [];
-      const historyList: ReadingHistory[] = localH ? JSON.parse(localH) : [];
+      const { bookmarks: bookmarksList, history: historyList } = getInitialLocalData();
 
       if (bookmarksList.length > 0) {
         const batch = writeBatch(db);
@@ -202,7 +274,8 @@ export function useFirebaseSync() {
         if (count > 0) await batch.commit();
       }
 
-      // Once successfully synchronized, clear the local migration queue
+      // Keep the local cache aligned with what was pushed to Firestore.
+      syncMergedCache(bookmarksList, historyList);
       console.log('Đã đồng bộ hoá dữ liệu lên Cloud thành công.');
     } catch (e) {
       console.error('Lỗi đồng bộ dữ liệu cục bộ lên đám mây:', e);
@@ -234,10 +307,19 @@ export function useFirebaseSync() {
             bookmarkedAt: serverTimestamp()
           });
         }
+
+        const nextBookmarks = isBookmarked
+          ? bookmarks.filter((b) => b.comicId !== comic.id)
+          : [{ comicId: comic.id, comicTitle: comic.title, comicThumbnail: comic.thumbnail, bookmarkedAt: new Date().toISOString() }, ...bookmarks.filter((b) => b.comicId !== comic.id)];
+        if (isBookmarked) {
+          overwriteCache(nextBookmarks, readingHistory);
+        } else {
+          syncMergedCache(nextBookmarks, []);
+        }
       } catch (e) {
         handleFirestoreError(e, OperationType.WRITE, `users/${user.uid}/bookmarks/${comic.id}`);
       }
-    } else {
+      } else {
       // Local fallback
       let nextBookmarks = [...bookmarks];
       const index = bookmarks.findIndex((b) => b.comicId === comic.id);
@@ -251,8 +333,7 @@ export function useFirebaseSync() {
           bookmarkedAt: new Date().toISOString()
         });
       }
-      setBookmarks(nextBookmarks);
-      localStorage.setItem('nettruyen_bookmarks_v1', JSON.stringify(nextBookmarks));
+      syncMergedCache(nextBookmarks, []);
     }
   };
 
@@ -262,13 +343,15 @@ export function useFirebaseSync() {
       const docRef = doc(db, `users/${user.uid}/bookmarks`, comicId);
       try {
         await deleteDoc(docRef);
+
+        const nextBookmarks = bookmarks.filter((b) => b.comicId !== comicId);
+        overwriteCache(nextBookmarks, readingHistory);
       } catch (e) {
         handleFirestoreError(e, OperationType.DELETE, `users/${user.uid}/bookmarks/${comicId}`);
       }
     } else {
       const nextBookmarks = bookmarks.filter((b) => b.comicId !== comicId);
-      setBookmarks(nextBookmarks);
-      localStorage.setItem('nettruyen_bookmarks_v1', JSON.stringify(nextBookmarks));
+      overwriteCache(nextBookmarks, readingHistory);
     }
   };
 
@@ -291,6 +374,21 @@ export function useFirebaseSync() {
           chapterName: historyEntry.chapterName,
           updatedAt: serverTimestamp()
         });
+
+        let nextHistory = [...readingHistory];
+        nextHistory = nextHistory.filter((h) => h.comicId !== historyEntry.comicId);
+        nextHistory.unshift({
+          comicId: historyEntry.comicId,
+          comicTitle: historyEntry.comicTitle,
+          comicThumbnail: historyEntry.comicThumbnail || '',
+          chapterId: historyEntry.chapterId,
+          chapterName: historyEntry.chapterName,
+          updatedAt: new Date().toISOString()
+        });
+        if (nextHistory.length > 40) {
+          nextHistory = nextHistory.slice(0, 40);
+        }
+        syncMergedCache([], nextHistory);
       } catch (e) {
         handleFirestoreError(e, OperationType.WRITE, `users/${user.uid}/history/${historyEntry.comicId}`);
       }
@@ -309,8 +407,7 @@ export function useFirebaseSync() {
       if (nextHistory.length > 40) {
         nextHistory = nextHistory.slice(0, 40);
       }
-      setReadingHistory(nextHistory);
-      localStorage.setItem('nettruyen_history_v1', JSON.stringify(nextHistory));
+      syncMergedCache([], nextHistory);
     }
   };
 
@@ -325,12 +422,12 @@ export function useFirebaseSync() {
       });
       try {
         await batch.commit();
+        overwriteCache([], readingHistory);
       } catch (e) {
         handleFirestoreError(e, OperationType.DELETE, `users/${user.uid}/bookmarks`);
       }
     } else {
-      setBookmarks([]);
-      localStorage.removeItem('nettruyen_bookmarks_v1');
+      overwriteCache([], readingHistory);
     }
   };
 
@@ -345,12 +442,12 @@ export function useFirebaseSync() {
       });
       try {
         await batch.commit();
+        overwriteCache(bookmarks, []);
       } catch (e) {
         handleFirestoreError(e, OperationType.DELETE, `users/${user.uid}/history`);
       }
     } else {
-      setReadingHistory([]);
-      localStorage.removeItem('nettruyen_history_v1');
+      overwriteCache(bookmarks, []);
     }
   };
 

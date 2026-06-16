@@ -155,7 +155,7 @@ export default function MangaDetailView({
                 className="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-widest transition-all cursor-pointer text-xs"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Độc Từ Đầu</span>
+                <span>Đọc Từ Đầu</span>
               </button>
             )}
 

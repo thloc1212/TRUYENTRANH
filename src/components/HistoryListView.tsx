@@ -65,9 +65,6 @@ export default function HistoryListView({
               ID đăng nhập: <span className="font-mono text-zinc-300">{userEmail.split('@')[0] || userLabel}</span>
             </div>
           </div>
-          <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-rose-300">
-            Mật khẩu không hiển thị lại vì Firebase không lưu dạng đọc được
-          </div>
         </div>
       </div>
 

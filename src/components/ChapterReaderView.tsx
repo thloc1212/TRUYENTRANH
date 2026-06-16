@@ -32,6 +32,7 @@ export default function ChapterReaderView({
   const [fullWidth, setFullWidth] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastReportedChapterRef = useRef<string>('');
 
   // Fetch chapter details via the proxy
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function ChapterReaderView({
               chapterId,
               chapterName: result.chapter_name,
             });
+            lastReportedChapterRef.current = `${comicId}:${chapterId}`;
           }
         }
       } catch (err: any) {
@@ -77,6 +79,20 @@ export default function ChapterReaderView({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   }, [chapterId]);
+
+  useEffect(() => {
+    if (!data?.chapter_name) return;
+
+    const historyKey = `${comicId}:${chapterId}`;
+    if (lastReportedChapterRef.current === historyKey) return;
+
+    onUpdateHistory({
+      comicId,
+      chapterId,
+      chapterName: data.chapter_name,
+    });
+    lastReportedChapterRef.current = historyKey;
+  }, [comicId, chapterId, data?.chapter_name, onUpdateHistory]);
 
   if (loading) {
     return <LoadingSpinner message="Đang nạp dữ liệu trang truyện, vui lòng đợi..." />;
@@ -110,17 +126,17 @@ export default function ChapterReaderView({
 
   // Navigation index resolution based on chaptersList
   const currentChapterIndex = chaptersList.findIndex((ch) => ch.id === chapterId);
-  const hasNextChapter = currentChapterIndex > 0;
-  const hasPrevChapter = currentChapterIndex > -1 && currentChapterIndex < chaptersList.length - 1;
+  const hasNewerChapter = currentChapterIndex > 0;
+  const hasOlderChapter = currentChapterIndex > -1 && currentChapterIndex < chaptersList.length - 1;
 
-  const handleNextChapter = () => {
-    if (hasNextChapter) {
+  const handleGoToNewerChapter = () => {
+    if (hasNewerChapter) {
       onSelectChapter(comicId, chaptersList[currentChapterIndex - 1].id);
     }
   };
 
-  const handlePrevChapter = () => {
-    if (hasPrevChapter) {
+  const handleGoToOlderChapter = () => {
+    if (hasOlderChapter) {
       onSelectChapter(comicId, chaptersList[currentChapterIndex + 1].id);
     }
   };
@@ -166,8 +182,8 @@ export default function ChapterReaderView({
             {/* Prev Chapter */}
             <button
               id="reader-btn-prev"
-              onClick={handlePrevChapter}
-              disabled={!hasPrevChapter}
+                onClick={handleGoToOlderChapter}
+                disabled={!hasOlderChapter}
               className="p-2 rounded bg-zinc-800 hover:bg-zinc-750 disabled:opacity-30 disabled:hover:bg-zinc-800 text-zinc-300 transition-colors cursor-pointer"
               title="Chương trước"
             >
@@ -191,8 +207,8 @@ export default function ChapterReaderView({
             {/* Next Chapter */}
             <button
               id="reader-btn-next"
-              onClick={handleNextChapter}
-              disabled={!hasNextChapter}
+              onClick={handleGoToNewerChapter}
+              disabled={!hasNewerChapter}
               className="p-2 rounded bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-40 disabled:bg-zinc-800 transition-all cursor-pointer"
               title="Chương kế tiếp"
             >
@@ -323,18 +339,18 @@ export default function ChapterReaderView({
       {/* Sticky Bottom controls */}
       <div className="w-full mt-10 max-w-md mx-auto px-4 flex items-center justify-between gap-4">
         <button
-          onClick={handlePrevChapter}
-          disabled={!hasPrevChapter}
+          onClick={handleGoToOlderChapter}
+          disabled={!hasOlderChapter}
           className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-zinc-900 text-center cursor-pointer select-none transition-all text-zinc-300"
         >
-          {hasPrevChapter ? 'Chương Trước' : 'Hết Chương'}
+          {hasOlderChapter ? 'Chương Trước' : 'Hết Chương'}
         </button>
         <button
-          onClick={handleNextChapter}
-          disabled={!hasNextChapter}
+          onClick={handleGoToNewerChapter}
+          disabled={!hasNewerChapter}
           className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-30 disabled:bg-zinc-800 text-center cursor-pointer select-none transition-all"
         >
-          {hasNextChapter ? 'Chương Kế Tiếp' : 'Hết Truyện'}
+          {hasNewerChapter ? 'Chương Kế Tiếp' : 'Hết Truyện'}
         </button>
       </div>
 
