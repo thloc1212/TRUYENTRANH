@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with essential info",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Distinct Google UID"
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User public display name"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile registration timestamp"
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Bookmark": {
+      "title": "Bookmark",
+      "description": "Saved manga bookmark mapping",
+      "type": "object",
+      "properties": {
+        "comicId": {
+          "type": "string",
+          "description": "Unique id of the bookmarked manga"
+        },
+        "comicTitle": {
+          "type": "string",
+          "description": "Manga title"
+        },
+        "comicThumbnail": {
+          "type": "string",
+          "description": "Manga landscape representation image URL"
+        },
+        "bookmarkedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time bookmark was saved"
+        }
+      },
+      "required": ["comicId", "comicTitle", "bookmarkedAt"]
+    },
+    "ReadingHistory": {
+      "title": "ReadingHistory",
+      "description": "Manga reading history mapping",
+      "type": "object",
+      "properties": {
+        "comicId": {
+          "type": "string",
+          "description": "Unique id of the referenced manga"
+        },
+        "comicTitle": {
+          "type": "string",
+          "description": "Manga name"
+        },
+        "comicThumbnail": {
+          "type": "string",
+          "description": "Manga representative cover image URL"
+        },
+        "chapterId": {
+          "type": "string",
+          "description": "The exact chapter unique id"
+        },
+        "chapterName": {
+          "type": "string",
+          "description": "Readable display title of the chapter"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last timestamp read"
+        }
+      },
+      "required": ["comicId", "comicTitle", "chapterId", "chapterName", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile records"
+    },
+    "/users/{userId}/bookmarks/{comicId}": {
+      "schema": "Bookmark",
+      "description": "The collections of user bookmarks/followed manga"
+    },
+    "/users/{userId}/history/{comicId}": {
+      "schema": "ReadingHistory",
+      "description": "Interactive chronological history of read manga chapters"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "NetTruyen Manga Reader",
+  "description": "A fast, fully responsive Vietnamese Manga Reader inspired by NetTruyen using comics-api with reading history and smooth navigation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
