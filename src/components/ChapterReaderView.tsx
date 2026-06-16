@@ -124,20 +124,37 @@ export default function ChapterReaderView({
     );
   }
 
-  // Navigation index resolution based on chaptersList
-  const currentChapterIndex = chaptersList.findIndex((ch) => ch.id === chapterId);
-  const hasNewerChapter = currentChapterIndex > 0;
-  const hasOlderChapter = currentChapterIndex > -1 && currentChapterIndex < chaptersList.length - 1;
+  const getChapterOrder = (chapter: Chapter, fallbackIndex: number) => {
+    const chapterNumber = chapter.name.match(/ch(?:ư|u|Æ°)ơng\s*(\d+(?:\.\d+)?)/i)
+      || chapter.name.match(/^chapter\s*(\d+(?:\.\d+)?)/i)
+      || chapter.name.match(/^\s*(\d+(?:\.\d+)?)/);
+
+    if (chapterNumber) {
+      return Number(chapterNumber[1]);
+    }
+
+    const idNumber = chapter.id.match(/^\d+(?:\.\d+)?$/);
+    return idNumber ? Number(idNumber[0]) : fallbackIndex;
+  };
+
+  // Normalize navigation to reading order: lower chapter number -> higher chapter number.
+  const orderedChapters = chaptersList
+    .map((chapter, index) => ({ chapter, order: getChapterOrder(chapter, index), index }))
+    .sort((a, b) => a.order - b.order || a.index - b.index)
+    .map((item) => item.chapter);
+  const currentChapterIndex = orderedChapters.findIndex((ch) => ch.id === chapterId);
+  const hasOlderChapter = currentChapterIndex > 0;
+  const hasNewerChapter = currentChapterIndex > -1 && currentChapterIndex < orderedChapters.length - 1;
 
   const handleGoToNewerChapter = () => {
     if (hasNewerChapter) {
-      onSelectChapter(comicId, chaptersList[currentChapterIndex - 1].id);
+      onSelectChapter(comicId, orderedChapters[currentChapterIndex + 1].id);
     }
   };
 
   const handleGoToOlderChapter = () => {
     if (hasOlderChapter) {
-      onSelectChapter(comicId, chaptersList[currentChapterIndex + 1].id);
+      onSelectChapter(comicId, orderedChapters[currentChapterIndex - 1].id);
     }
   };
 
